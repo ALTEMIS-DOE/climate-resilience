@@ -156,7 +156,7 @@ class SitesDownloader:
         return my_task
 
     
-    def download_historical_daily(self, start_date: datetime, end_date: datetime, variable: str, scenario: str, model: str, geom: ee.Geometry.Point, name: str, state: str) -> ee.batch.Task:
+    def download_historical_daily(self, start_date: datetime, end_date: datetime, variable: str, scenario: str, model: str, geom: ee.Geometry.Point, name: str, state: str, image_collection_obj=None) -> ee.batch.Task:
         """Download daily data.
         
         Args:
@@ -180,11 +180,19 @@ class SitesDownloader:
             raise ValueError("Incorrect variable.")
         
         # Get CMIP5 image collection
-        CMIP5 = ee.ImageCollection('NASA/NEX-GDDP') \
-                  .filterDate(start_date, end_date) \
-                  .select(variable) \
-                  .filter(ee.Filter.eq('scenario', scenario)) \
-                  .filter(ee.Filter.eq('model', model))
+        if image_collection_obj is None:
+            CMIP5 = ee.ImageCollection('NASA/NEX-GDDP') \
+                    .filterDate(start_date, end_date) \
+                    .select(variable) \
+                    .filter(ee.Filter.eq('scenario', scenario)) \
+                    .filter(ee.Filter.eq('model', model))
+        else:
+            CMIP5 = image_collection_obj \
+                    .filterDate(start_date, end_date) \
+                    .select(variable) \
+                    .filter(ee.Filter.eq('scenario', scenario)) \
+                    .filter(ee.Filter.eq('model', model))
+
 
         timeseries = ee.FeatureCollection(CMIP5.map(lambda img: img.multiply(C.CONST[variable]["multiply"]) \
                                                                     .add(C.CONST[variable]["add"]) \
@@ -260,7 +268,7 @@ class SitesDownloader:
 
     
     
-    def _download_samples_util(self, download_config: List[object], params: dict, mode: str) -> None:
+    def _download_samples_util(self, download_config: List[object], params: dict, mode: str, ee_initialize=False, image_collection_obj=None) -> None:
         """Private utility function to download all the data samples from Google Earth Engine.
         
         Args:
@@ -281,16 +289,17 @@ class SitesDownloader:
         """
         
         # Initialize Google Earth Engine
-        try:
-            ee.Initialize()
-        except ee.ee_exception.EEException as ee_exp:
-            raise Exception(f"{ee_exp}\n\n\n \
-                   Encountered issue with the Google Earth Engine Authentication. \
-                   Try again after proper authentication.\n \
-                   Try the following commands to authenticate using commandline: \
-                       'https://developers.google.com/earth-engine/guides/command_line'.\n \
-                   OR, Use the following link to authenticate using python: \
-                       'https://developers.google.com/earth-engine/guides/service_account'.\n")
+        if ee_initialize:
+            try:
+                ee.Initialize()
+            except ee.ee_exception.EEException as ee_exp:
+                raise Exception(f"{ee_exp}\n\n\n \
+                    Encountered issue with the Google Earth Engine Authentication. \
+                    Try again after proper authentication.\n \
+                    Try the following commands to authenticate using commandline: \
+                        'https://developers.google.com/earth-engine/guides/command_line'.\n \
+                    OR, Use the following link to authenticate using python: \
+                        'https://developers.google.com/earth-engine/guides/service_account'.\n")
         
         # Making sure that there are expected number of values in the configuration vector
         if len(download_config) != 4:
@@ -327,6 +336,7 @@ class SitesDownloader:
                 geom=geoPoint, 
                 name=name, 
                 state=state,
+                image_collection_obj=image_collection_obj,
             )
             
         elif mode == "monthly":
@@ -369,6 +379,16 @@ class SitesDownloader:
         ))
         print(f"STATUS UPDATE: Generated {len(download_configs)} download configurations.")
         
+        # Google Earth Engine initialization
+        try:
+            ee.Initialize()
+        except ee.ee_exception.EEException as ee_exp:
+            raise Exception(f"{ee_exp}\n\n\n \
+                Oops! EE Broke!")
+
+        # Image Collection Object
+        image_collection_obj = ee.ImageCollection('NASA/NEX-GDDP')
+
         # # Single node download process
         # for config_i in download_configs:
         #     self._download_samples_util(download_config=config_i, params=params, mode=mode)
@@ -378,7 +398,9 @@ class SitesDownloader:
             delayed(self._download_samples_util)(
                 download_config=config_i, 
                 params=params, 
-                mode=mode
+                mode=mode, 
+                ee_initialize=False,
+                image_collection_obj=image_collection_obj,
             )
             for config_i in download_configs
         )
