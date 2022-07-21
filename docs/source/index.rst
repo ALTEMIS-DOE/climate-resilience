@@ -14,6 +14,7 @@ Welcome to climate-resilience's documentation!
    constants
    downloader
    preprocess
+   bias_correction
    visualize
 
 
