@@ -1,4 +1,4 @@
-Preprocessing
+Bias Correction
 -----------------
 
 .. automodule:: climate_resilience.bias_correction
