@@ -16,6 +16,8 @@ install_requires = [
     "earthengine-api",
     "eecmip5",
     "joblib",
+    "scikit-downscale",
+    "probscale",
 ]
 
 description_file = 'DESCRIPTION.md'

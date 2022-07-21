@@ -232,8 +232,8 @@ def plot_2(
 	y_validate: pd.DataFrame,
 	y_predict: pd.DataFrame,
 	variable_short: pd.DataFrame,
-	site: str ="",
-	outdir: str
+	outdir: str,
+	site: str="",
 ) -> None:
 
 	"""Plots X_validate, y_validate, y_predict over time in subplots.
@@ -270,7 +270,7 @@ def plot_2(
 def prob_plots(
 	x: list,
 	y: list,
-	y_hat list:,
+	y_hat: list,
 	variable: str,
 	shape:Tuple[int] =(2, 2),
 	figsize:Tuple[int] =(8, 8)
