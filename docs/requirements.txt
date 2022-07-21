@@ -18,7 +18,6 @@ charset-normalizer==2.0.10
 click==8.0.3
 click-plugins==1.1.1
 cligj==0.7.2
--e git+https://github.com/ALTEMIS-DOE/climate-resilience.git@21c7699bfacab1a8534c9088c3baf51c7e4dec6d#egg=climate_resilience
 colorama==0.4.4
 colour==0.1.5
 cryptography==36.0.1
