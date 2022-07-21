@@ -58,7 +58,7 @@ def read_ensemble_average(
   cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index)
   return cmip_hist_rcp85
 
-def read_individual_model(sitename, state, modelname, var,modeldir):
+def read_individual_model(
   sitename: str,
   state: str,
   modelname: str,
