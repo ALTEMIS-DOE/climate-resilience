@@ -55,10 +55,10 @@ def read_ensemble_average(
   rcp85 = pd.read_csv(modeldir+ variable_short + '/rcp85_' + variable_short + '_ensemble/'+ sitename +'_'+ state +'_rcp85_' + variable_short + '.csv')
   cmip_hist_rcp85 = pd.concat([hist, rcp85]) #rcp45, 
   cmip_hist_rcp85 = cmip_hist_rcp85.set_index("date")
-  cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index)
+  cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index, errors='coerce')
   return cmip_hist_rcp85
 
-def read_individual_model(sitename, state, modelname, var,modeldir):
+def read_individual_model(
   sitename: str,
   state: str,
   modelname: str,
@@ -86,6 +86,8 @@ def read_individual_model(sitename, state, modelname, var,modeldir):
       cmip_hist_rcp85.index = pd.date_range(start=cmip_hist_rcp85["Date"][0], periods = len(cmip_hist_rcp85), freq='D')
   if "date" in cmip_hist_rcp85.columns:
       cmip_hist_rcp85.set_index('date')
+      
+  cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index, errors='coerce')
 
   return cmip_hist_rcp85
 
@@ -149,9 +151,12 @@ def run_model(
     models = models_prec
   else:
     models = models_temp
-
-  data.index = data.index.astype('datetime64[ns]')
-  cmip_hist_rcp85.index = cmip_hist_rcp85.index.astype('datetime64[ns]')
+  
+  data.index = pd.to_datetime(data.index, errors='coerce')
+  cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index, errors='coerce')
+  data= data.groupby(data.index).mean()
+  cmip_hist_rcp85= cmip_hist_rcp85.groupby(cmip_hist_rcp85.index).mean()
+  
   merged = pd.merge(data, cmip_hist_rcp85, left_index=True, right_index=True,how="inner")
 
   data = data.loc[merged.index].dropna()
