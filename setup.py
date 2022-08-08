@@ -16,24 +16,24 @@ install_requires = [
     "earthengine-api",
     "eecmip5",
     "joblib",
+    "scikit-downscale",
+    "probscale",
 ]
 
 description_file = 'DESCRIPTION.md'
 with open(file=description_file, mode='r', encoding='utf-8') as f:
     pypi_description = f.read()
 
+VERSION = open(file='VERSION.txt', mode='r').read().strip()
 setup(
     name="climate-resilience",
-    version="0.2.7",
+    version=VERSION,
     description="Download, Preprocessing, and Visualization code for climate resilience data.",
     long_description=pypi_description,
     long_description_content_type="text/markdown",
-    author=[
-        "Satyarth Praveen",
-        "Zexuan Xu",
-    ],
-    author_email="satyarth@lbl.gov",
-    url="https://github.com/satyarth934/lbnl-climate-resilience",
+    author="Satyarth Praveen, Zexuan Xu, Haruko Wainwright",
+    author_email="satyarth@lbl.gov, zexuanxu@lbl.gov, hmwainwright@lbl.gov",
+    url="https://github.com/ALTEMIS-DOE/climate-resilience.git",
     packages=find_packages(
         where="src",
     ),
@@ -48,8 +48,8 @@ setup(
         "Operating System :: OS Independent",
     ],
     project_urls={
-        "Bug Tracker": "https://github.com/satyarth934/lbnl-climate-resilience/issues",
-        # 'Documentation': None,
-        "Source": "https://github.com/satyarth934/lbnl-climate-resilience",
+        "Bug Tracker": "https://github.com/ALTEMIS-DOE/climate-resilience/issues",
+        "Documentation": "https://climate-resilience.readthedocs.io/",
+        "Source": "https://github.com/ALTEMIS-DOE/climate-resilience",
     },
 )
