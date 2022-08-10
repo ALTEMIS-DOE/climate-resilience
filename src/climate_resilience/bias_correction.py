@@ -112,9 +112,9 @@ def read_observation_data(
         pd.DataFrame: Data frame of observational data for given site.
 
     """
+  data = pd.DataFrame(None)
   for filename in os.listdir(obsdir  + "Site_" + var +"/"):
     if site in filename: 
-      data = pd.read_csv(obsdir + "Site_" + var + "/" +filename)
       data = pd.read_csv(obsdir + "Site_" + var + "/" +filename)
       if "Date" in data.columns:
         data = data.set_index('Date')
