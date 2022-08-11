@@ -211,7 +211,7 @@ def plot_1(
     y_validate: pd.DataFrame,
     y_predict: pd.DataFrame,
     variable_short: pd.DataFrame,
-    site: str ="", 
+    site: str="", 
 ) -> None:
     """Plots X_validate, y_validate, y_predict over time.
     
@@ -245,8 +245,8 @@ def plot_2(
     y_validate: pd.DataFrame,
     y_predict: pd.DataFrame,
     variable_short: pd.DataFrame,
-    site: str ="",
-    outdir: str
+    outdir: str,
+    site: str="",
 ) -> None:
     """Plots X_validate, y_validate, y_predict over time in subplots.
     
@@ -283,10 +283,10 @@ def plot_2(
 def prob_plots(
     x: list,
     y: list,
-    y_hat list:,
+    y_hat: list,
     variable: str,
-    shape:Tuple[int] =(2, 2),
-    figsize:Tuple[int] =(8, 8)
+    shape: Tuple[int] =(2, 2),
+    figsize: Tuple[int] =(8, 8),
 )-> None:
     """Plots Probability qq plots.
     
@@ -350,7 +350,7 @@ def plot_3(
 def data_time_series_to_csv(
     y_predict: pd.DataFrame,
     filename: str,
-    outdir:str,
+    outdir: str,
 ) -> None:
     """Saves y_predict dataframe in specified directory.
     
