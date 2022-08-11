@@ -28,9 +28,11 @@ models_prec = {'BCSD: BcsdPrecipitation': BcsdPrecipitation(return_anoms=False)}
 #variable_short = "Tmax" for Temperature_Max
 #variable_short = "Tmax" for Temperature_Max
 
-"""## Read CMIP5 climate model data (this is what we downloaded and processed)"""
-
+#############################################
+# Read CMIP5 climate model data 
+# (this is what we downloaded and processed)
 # TO READ FROM THE ENSEMBLE AVERAGE
+#############################################
 
 def read_ensemble_average(
     sitename: str,
@@ -38,18 +40,18 @@ def read_ensemble_average(
     variable_short: str,
     modeldir: str,
 ) -> pd.DataFrame:
-    """Reads model ensemble data for historical, rcp45, rcp85 predictions..
-        
-        Args:
-                sitename (str): String containing the sitename.
-                state (str): String containing the state of the site
-                variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
-                modeldir (str): Directory containing all of the datafiles for ensemble averages
+    """Reads model ensemble data for historical, rcp45, rcp85 predictions.
+    Args:
+        sitename (str): String containing the sitename.
+        state (str): String containing the state of the site
+        variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
+        modeldir (str): Directory containing all of the datafiles for ensemble averages
     
-        Returns:
-                pd.DataFrame: Data frame of ensemble averages for historical, rcp45, and rcp85 models.
+    Returns:
+    pd.DataFrame: Data frame of ensemble averages for historical, rcp45, and rcp85 models.
 
-        """
+    """
+    
     hist = pd.read_csv(modeldir+variable_short+'/historical_' + variable_short + '_ensemble/'+ sitename +'_'+ state +'_historical_' + variable_short + '.csv')
     rcp45 = pd.read_csv(modeldir+variable_short+ '/rcp45_' + variable_short + '_ensemble/'+ sitename +'_'+ state +'_rcp45_' + variable_short + '.csv')
     rcp85 = pd.read_csv(modeldir+ variable_short + '/rcp85_' + variable_short + '_ensemble/'+ sitename +'_'+ state +'_rcp85_' + variable_short + '.csv')
@@ -57,6 +59,7 @@ def read_ensemble_average(
     cmip_hist_rcp85 = cmip_hist_rcp85.set_index("date")
     cmip_hist_rcp85.index = pd.to_datetime(cmip_hist_rcp85.index, errors='coerce')
     return cmip_hist_rcp85
+
 
 def read_individual_model(
     sitename: str,
@@ -66,17 +69,18 @@ def read_individual_model(
     modeldir: str,
 ) -> pd.DataFrame:
     """Reads individual model data for historical, rcp45, rcp85 predictions.
-        Args:
-                sitename (str): String containing the sitename.
-                state (str): String containing the state of the site
-                modelname (str): String containing the name of the intended model.
-                var (str): String indicating type of variable (Tmax, Tmean or Pr)
-                modeldir (str): Directory containing all of the datafiles for ensemble averages
+    Args:
+        sitename (str): String containing the sitename.
+        state (str): String containing the state of the site
+        modelname (str): String containing the name of the intended model.
+        var (str): String indicating type of variable (Tmax, Tmean or Pr)
+        modeldir (str): Directory containing all of the datafiles for ensemble averages
     
-        Returns:
-                pd.DataFrame: Data frame of indiviudal model data for historical, rcp45, and rcp85 models.
+    Returns:
+        pd.DataFrame: Data frame of indiviudal model data for historical, rcp45, and rcp85 models.
 
-        """
+    """
+    
     hist = pd.read_csv(modeldir+ var + '/historical_' + var + '/'+ sitename +'_'+ state + '/'+ sitename +'_'+ state +'_historical_' + var + '_'  + modelname +'.csv')
     rcp45 = pd.read_csv(modeldir+ var + '/rcp45_' + var + '/'+ sitename +'_'+ state + '/'+ sitename +'_'+ state +'_rcp45_'+ var + '_'  + modelname +'.csv')
     rcp85 = pd.read_csv(modeldir+ var + '/rcp85_' + var + '/'+ sitename +'_'+ state + '/'+ sitename +'_'+ state +'_rcp85_' + var + '_' + modelname +'.csv')
@@ -91,27 +95,29 @@ def read_individual_model(
 
     return cmip_hist_rcp85
 
-"""## Read observation data provided by the sites
-Note that the format of this dataset varies 
-"""
+
+##############################################
+# Read observation data provided by the sites
+# Note that the format of this dataset varies 
+##############################################
 
 def read_observation_data(
     site: str,
     var:str,
     obsdir:str,
 ) -> pd.DataFrame:
+    """Reads observational data for intended site.
     
-        """Reads observational data for intended site.
-
-        Args:
-                site (str): String containing the sitename.
-                var (str): String indicating type of variable (Tmax, Tmean or Pr)
-                obsdir (str): Directory containing all of the files for observational data
+    Args:
+        site (str): String containing the sitename.
+        var (str): String indicating type of variable (Tmax, Tmean or Pr)
+        obsdir (str): Directory containing all of the files for observational data
     
-        Returns:
-                pd.DataFrame: Data frame of observational data for given site.
+    Returns:
+        pd.DataFrame: Data frame of observational data for given site.
 
-        """
+    """
+    
     data = pd.DataFrame(None)
     for filename in os.listdir(obsdir  + "Site_" + var +"/"):
         if site in filename: 
@@ -120,33 +126,35 @@ def read_observation_data(
                 data = data.set_index('Date')
             if "date" in data.columns:
                 data = data.set_index('date')
+            break
 
-            return data
+    return data
 
-"""## Call BCSD function to fit the data"""
-
+#############################################
+# Call BCSD function to fit the data.
 # will need to have the files in https://github.com/earthcube2020/ec20_hamman_etal
 # in the same directory or link to the directory to be able to call these two BCSD functions
 # For temperature (tasmax), use BcsdTemperature
 # For precipitation, use BcsdPrecipitation
+#############################################
 
 def run_model(
     data: pd.DataFrame,
     cmip_hist_rcp85: pd.DataFrame,
     variable_short: str,
 ) -> Tuple[object]:
+    """Calls BCSD function to fit the data.
     
-        """Calls BCSD function to fit the data.
-
-        Args:
-                data (pd.DataFrame): Observational data for a particular site.
-                cmip_hist_rcp85 (pd.DataFrame): Model data for one site.
-                variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
+    Args:
+        data (pd.DataFrame): Observational data for a particular site.
+        cmip_hist_rcp85 (pd.DataFrame): Model data for one site.
+        variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
     
-        Returns:
-                Tuple[object]: Tuple of X_train, y_train , X_validate, y_validate, y_predict,variable_short
+    Returns:
+        Tuple[object]: Tuple of X_train, y_train , X_validate, y_validate, y_predict,variable_short
 
-        """
+    """
+    
     if variable_short == "Pr":
         models = models_prec
     else:
@@ -205,17 +213,15 @@ def plot_1(
     variable_short: pd.DataFrame,
     site: str ="", 
 ) -> None:
-
-        """Plots X_validate, y_validate, y_predict over time.
-
-        Args:
-                X_validate (pd.DataFrame): X_validate
-                y_validate (pd.DataFrame): y_validate
-                y_predict (pd.DataFrame): y_predict
-                variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
-                site (str): Name of site
-        """
-
+    """Plots X_validate, y_validate, y_predict over time.
+    
+    Args:
+        X_validate (pd.DataFrame): X_validate
+        y_validate (pd.DataFrame): y_validate
+        y_predict (pd.DataFrame): y_predict
+        variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
+        site (str): Name of site
+    """
     
     if variable_short == "Pr":
         unit = "(mm)"
@@ -233,6 +239,7 @@ def plot_1(
     
 # ax1.set_xlim((datetime.date(1950, 1, 1), datetime.date(2000, 1, 1)))
 
+
 def plot_2(
     X_validate: pd.DataFrame,
     y_validate: pd.DataFrame,
@@ -241,17 +248,16 @@ def plot_2(
     site: str ="",
     outdir: str
 ) -> None:
-
-        """Plots X_validate, y_validate, y_predict over time in subplots.
-
-        Args:
-                X_validate (pd.DataFrame): X_validate
-                y_validate (pd.DataFrame): y_validate
-                y_predict (pd.DataFrame): y_predict
-                variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
-                site (str): Name of site
-                outdir (str): Name of outputdirectory
-        """
+    """Plots X_validate, y_validate, y_predict over time in subplots.
+    
+    Args:
+        X_validate (pd.DataFrame): X_validate
+        y_validate (pd.DataFrame): y_validate
+        y_predict (pd.DataFrame): y_predict
+        variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
+        site (str): Name of site
+        outdir (str): Name of outputdirectory
+    """
 
     if variable_short == "Pr":
         unit = "(mm)"
@@ -273,6 +279,7 @@ def plot_2(
     # fig.savefig(curdir+'annual_tmax_CESM1.png')
     fig.savefig(outdir+'annual_' + variable_short +'.png')
 
+    
 def prob_plots(
     x: list,
     y: list,
@@ -281,42 +288,42 @@ def prob_plots(
     shape:Tuple[int] =(2, 2),
     figsize:Tuple[int] =(8, 8)
 )-> None:
-        """Plots Probability qq plots.
+    """Plots Probability qq plots.
+    
+    Args:
+        x (list): x
+        y (list): y
+        y_hat (list): y_hat
+        variable (str) : Variable
+        shape (Tuple[int]): Default shape of probplot
+        figsize (Tuple[int]): Defualt figsize of probplot
 
-        Args:
-                x (list): x
-                y (list): y
-                y_hat (list): y_hat
-                variable (str) : Variable
-                shape (Tuple[int]): Default shape of probplot
-                figsize (Tuple[int]): Defualt figsize of probplot
+    """
+    
+    fig, axes = plt.subplots(*shape, sharex=True, sharey=True, figsize=figsize)
 
-        """
+    scatter_kws = dict(label="", marker=None, linestyle="-")
+    common_opts = dict(plottype="qq", problabel="", datalabel="")
 
-        fig, axes = plt.subplots(*shape, sharex=True, sharey=True, figsize=figsize)
+    for ax, (label, series) in zip(axes.flat, y_hat.items()):
 
-        scatter_kws = dict(label="", marker=None, linestyle="-")
-        common_opts = dict(plottype="qq", problabel="", datalabel="")
+            scatter_kws["label"] = "original"
+            fig = probscale.probplot(x, ax=ax, scatter_kws=scatter_kws, **common_opts)
 
-        for ax, (label, series) in zip(axes.flat, y_hat.items()):
+            scatter_kws["label"] = "target"
+            fig = probscale.probplot(y, ax=ax, scatter_kws=scatter_kws, **common_opts)
 
-                scatter_kws["label"] = "original"
-                fig = probscale.probplot(x, ax=ax, scatter_kws=scatter_kws, **common_opts)
+            scatter_kws["label"] = "corrected"
+            fig = probscale.probplot(series, ax=ax, scatter_kws=scatter_kws, **common_opts)
+            ax.set_title(label)
+            ax.legend()
 
-                scatter_kws["label"] = "target"
-                fig = probscale.probplot(y, ax=ax, scatter_kws=scatter_kws, **common_opts)
+    [ax.set_xlabel("Standard Normal Quantiles") for ax in axes[-1]]
+    [ax.set_ylabel(variable) for ax in axes[:, 0]]
+    [fig.delaxes(ax) for ax in axes.flat[len(y_hat.keys()) :]]
+    fig.tight_layout()
 
-                scatter_kws["label"] = "corrected"
-                fig = probscale.probplot(series, ax=ax, scatter_kws=scatter_kws, **common_opts)
-                ax.set_title(label)
-                ax.legend()
-
-        [ax.set_xlabel("Standard Normal Quantiles") for ax in axes[-1]]
-        [ax.set_ylabel(variable) for ax in axes[:, 0]]
-        [fig.delaxes(ax) for ax in axes.flat[len(y_hat.keys()) :]]
-        fig.tight_layout()
-
-        return fig
+    return fig
 
 
 def plot_3(
@@ -326,32 +333,32 @@ def plot_3(
     variable_short: pd.DataFrame,
     site: str ="", 
 ) -> None:
+    """Uses prob_plots function to plot for given data.
     
-        """Uses prob_plots function to plot for given data.
-
-        Args:
-                X_validate (pd.DataFrame): X_validate
-                y_validate (pd.DataFrame): y_validate
-                y_predict (pd.DataFrame): y_predict
-                variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
-                site (str): Name of site
-        """
+    Args:
+        X_validate (pd.DataFrame): X_validate
+        y_validate (pd.DataFrame): y_validate
+        y_predict (pd.DataFrame): y_predict
+        variable_short (str): String indicating type of variable (Tmax, Tmean or Pr)
+        site (str): Name of site
+    """
+    
     fig = prob_plots(X_validate, y_validate[variable_short], y_predict, variable_short, shape=(2, 2), figsize=(12, 12))
     fig.suptitle(site + variable_short )
 
+    
 def data_time_series_to_csv(
     y_predict: pd.DataFrame,
     filename: str,
     outdir:str,
 ) -> None:
-            """Saves y_predict dataframe in specified directory.
-
-        Args:
-                
-                y_predict (pd.DataFrame): y_predict
-                filename (str): Name of file
-                outdir (str): Name of output directory
-        """
+    """Saves y_predict dataframe in specified directory.
+    
+    Args:
+        y_predict (pd.DataFrame): y_predict
+        filename (str): Name of file
+        outdir (str): Name of output directory
+    """
     y_predict.to_csv(os.path.join(outdir, filename))
 
 
