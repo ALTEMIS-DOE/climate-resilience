@@ -1,6 +1,7 @@
 # climate-resilience
 
 <a href="https://pypi.org/project/climate-resilience/"><img alt="PyPI" src="https://img.shields.io/pypi/v/black"></a>
+[![Downloads](https://pepy.tech/badge/climate-resilience)](https://pepy.tech/project/climate-resilience)
 
 ---
 ## [Download Examples](https://github.com/satyarth934/lbnl-climate-resilience/blob/main/examples/climate-resilience/scripts/download_example.py)
