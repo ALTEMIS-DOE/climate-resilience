@@ -34,6 +34,14 @@ def parse_arguments() -> argparse.Namespace:
     )
     
     parser.add_argument(
+        "-d",
+        "--dataset",
+        type=str,
+        default="CMIP5",
+        help="Source dataset to fetch from - 'CMIP5' or 'CMIP6'.",
+    )
+    
+    parser.add_argument(
         "-o",
         "--drive_output_dir",
         type=str,
@@ -56,10 +64,12 @@ def main():
     output_dir = args.drive_output_dir
     site_json_file_path = args.site_json     # Path to the data directory within this git repo '../../../data/LMsites.json'.
     yaml_path = args.yaml_path               # Path to the data directory within this git repo './download_params.yml'.
+    dataset = args.dataset                   # Defaults to CMIP5.
     
     sd_obj = downloader.SitesDownloader(
         folder=output_dir,
         site_json_file_path=site_json_file_path,
+        dataset=dataset,
     )
     
     sd_obj.download_samples(params_yaml_file=yaml_path, mode="daily")

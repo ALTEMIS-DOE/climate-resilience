@@ -26,6 +26,7 @@ class SitesDownloader:
         self, 
         folder: str, 
         site_json_file_path: str, 
+        dataset: str="CMIP5",
         latitudes: Optional[Union[Tuple[float], List[float]]]=None, 
         longitudes: Optional[Union[Tuple[float], List[float]]]=None,
         latitude_range: Optional[Union[Tuple[float], List[float]]]=None, 
@@ -103,6 +104,19 @@ class SitesDownloader:
                     self.sites = self.sites.query(f'Longitude in {longitudes}')
                 else:
                     raise TypeError("Incorrect input. Check the input for longitudes again.")
+                    
+        # Dataset
+        self.dataset = dataset
+        
+        if self.dataset == "CMIP5":
+            self.GEE_GDDP_DATASET = 'NASA/NEX-GDDP'
+            self.GEE_ENSEMBLE_STATS = 'NASA/NEX-DCP30_ENSEMBLE_STATS'
+        elif self.dataset == "CMIP6":
+            print(f"{self.dataset = }")
+            self.GEE_GDDP_DATASET = 'NASA/GDDP-CMIP6'
+            self.GEE_ENSEMBLE_STATS = None
+        else:
+            raise ValueError(f"Invalid value for `dataset`!! Valid options: 'CMIP5' | 'CMIP6'. Provided dataset = {dataset}!")
 
 
     def download_model_average_daily(self, start_date: datetime, end_date: datetime, variable: str, scenario: str, geom: ee.Geometry.Point, name: str, state: str) -> ee.batch.Task:
@@ -128,7 +142,8 @@ class SitesDownloader:
             raise ValueError("Incorrect variable.")
             
         # Get CMIP5 image collection
-        CMIP5 = ee.ImageCollection('NASA/NEX-GDDP') \
+        # CMIP5 = ee.ImageCollection('NASA/NEX-GDDP') \
+        CMIP5 = ee.ImageCollection(self.GEE_GDDP_DATASET) \
                     .filterDate(start_date, end_date) \
                     .select(variable) \
                     .filter(ee.Filter.eq('scenario', scenario)) \
@@ -180,7 +195,7 @@ class SitesDownloader:
             raise ValueError("Incorrect variable.")
         
         # Get CMIP5 image collection
-        CMIP5 = ee.ImageCollection('NASA/NEX-GDDP') \
+        CMIP5 = ee.ImageCollection(self.GEE_GDDP_DATASET) \
                   .filterDate(start_date, end_date) \
                   .select(variable) \
                   .filter(ee.Filter.eq('scenario', scenario)) \
@@ -210,6 +225,7 @@ class SitesDownloader:
 
     def download_historical_monthly(self, start_date: datetime, end_date: datetime, variable: str, scenario: str, model: str, geom: ee.Geometry.Point, name: str, state: str) -> ee.batch.Task:
         """Download monthly data.
+        TODO: Monthly data currently is only available for CMIP5 data. CMIP6 yet to be implemented.
         
         Args:
             start_date (datetime): Starting date of the dataset to download. 
@@ -227,6 +243,10 @@ class SitesDownloader:
             ee.batch.Task: Returns the google earth engine task that performs the download process.
                 Not necessaily useful for basic download commands.
         """
+        
+        if self.dataset == "CMIP6":
+            raise NotImplementedError("Unlike CMIP5 where ensemble stats are separately provided, CMIP6 ensemble stats need to computed using GDDP-CMIP6 dataset. To be implemented in the future.")    # TODO: Implement this.
+            
         
         if variable not in C.CONST:
             raise ValueError("Incorrect variable.")
@@ -369,9 +389,13 @@ class SitesDownloader:
         ))
         print(f"STATUS UPDATE: Generated {len(download_configs)} download configurations.")
         
-        # # Single node download process
-        # for config_i in download_configs:
-        #     self._download_samples_util(download_config=config_i, params=params, mode=mode)
+#         # Single node download process
+#         for config_i in download_configs:
+#             self._download_samples_util(
+#                 download_config=config_i, 
+#                 params=params, 
+#                 mode=mode,
+#             )
         
         # Parallel download process
         parallel_function(
