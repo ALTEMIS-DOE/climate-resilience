@@ -3,6 +3,12 @@
 <a href="https://pypi.org/project/climate-resilience/"><img alt="PyPI" src="https://img.shields.io/pypi/v/black"></a>
 [![Documentation Status](https://readthedocs.org/projects/climate-resilience/badge/?version=latest)](https://climate-resilience.readthedocs.io/en/latest/?badge=latest)
 
+---
+## Instructions
+Assumes GEE authorization.
+Can authenticate using the following commands:
+1. `gcloud auth login`
+2. `earthengine authenticate`
 
 ---
 ## Download [Examples](./examples/climate-resilience/scripts/download_example.py)
