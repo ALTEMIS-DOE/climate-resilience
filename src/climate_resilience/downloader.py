@@ -380,14 +380,25 @@ class SitesDownloader:
         print(f"STATUS UPDATE: Generated {len(download_configs)} download configurations.")
         
         # Google Earth Engine initialization
-        try:
-            ee.Initialize()
-        except ee.ee_exception.EEException as ee_exp:
-            raise Exception(f"{ee_exp}\n\n\n \
-                Oops! EE Broke!")
+        # try:
+        #     ee.Initialize()
+        # except ee.ee_exception.EEException as ee_exp:
+        #     raise Exception(f"{ee_exp}\n\n\n \
+        #         Oops! EE Broke!")
 
         # Image Collection Object
         image_collection_obj = ee.ImageCollection('NASA/NEX-GDDP')
+        # image_collection_obj = None
+
+        start_date = datetime.strptime(params["start_date"], "%Y-%m-%d")
+        end_date = datetime.strptime(params["end_date"], "%Y-%m-%d")
+        image_collection_obj.filterDate(start_date, end_date)
+
+        print("Exiting...")
+        sys.exit(0)
+        print("NEVER Executes...")
+
+
 
         # # Single node download process
         # for config_i in download_configs:
@@ -399,7 +410,7 @@ class SitesDownloader:
                 download_config=config_i, 
                 params=params, 
                 mode=mode, 
-                ee_initialize=False,
+                ee_initialize=True,
                 image_collection_obj=image_collection_obj,
             )
             for config_i in download_configs
